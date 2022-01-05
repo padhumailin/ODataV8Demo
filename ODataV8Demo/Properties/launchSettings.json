@@ -20,7 +20,7 @@
     "ODataV8Demo": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "weatherforecast",
+      "launchUrl": "$odata",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

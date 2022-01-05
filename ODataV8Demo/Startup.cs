@@ -3,10 +3,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData;
+using Microsoft.AspNetCore.OData.Extensions;
+using Microsoft.AspNetCore.OData.Routing.Conventions;
+using Microsoft.AspNetCore.OData.Routing.Template;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OData;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 using ODataV8Demo.Entities;
@@ -30,9 +34,17 @@ namespace ODataV8Demo
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers().AddOData(option => option.Select().Filter().Count().OrderBy().Expand().SetMaxTop(100)
-            .AddRouteComponents("api/accounts", edmModelAccounts())
-           .AddRouteComponents("api/devices", edmModelDevices()));
+            services.AddControllers().AddOData(option =>
+            {
+                option.Select().Filter().Count().OrderBy().Expand().SetMaxTop(100)
+                .AddRouteComponents("api/accounts", edmModelAccounts())
+               .AddRouteComponents("api/devices", edmModelDevices())
+               .AddRouteComponents("api", fakeModel()) // is required to build the service provider for "api/"
+               .Conventions.Remove(option.Conventions.First(convention => convention is MetadataRoutingConvention));
+
+                option.Conventions.Add(new MyRoutingConvention());
+            }
+            );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,6 +56,8 @@ namespace ODataV8Demo
             }
 
             app.UseHttpsRedirection();
+
+            app.UseODataRouteDebug();
 
             app.UseRouting();
 
@@ -79,5 +93,61 @@ namespace ODataV8Demo
             return builder.GetEdmModel();
         }
 
+        public static IEdmModel fakeModel()
+        {
+            EdmModel model = new EdmModel();
+            EdmEntityContainer container = new EdmEntityContainer("NS", "Default");
+            model.AddElement(container);
+            return model;
+        }
+
+    }
+
+    public class MyRoutingConvention : IODataControllerActionConvention
+    {
+        public int Order => -999;
+
+        public bool AppliesToController(ODataControllerActionContext context)
+        {
+            return true;
+        }
+
+        public bool AppliesToAction(ODataControllerActionContext context)
+        {
+            if (context.Action.ActionName == "GetDevices")
+            {
+                IEdmEntitySet devices = context.Model.EntityContainer.FindEntitySet("Devices");
+                if (devices != null)
+                {
+                    context.Action.Selectors.Clear();
+
+                    ODataPathTemplate path = new ODataPathTemplate(
+                        new EntitySetSegmentTemplate(devices)
+                    );
+                    context.Action.AddSelector("get", "api", context.Model, path, context.Options.RouteOptions);
+
+                    return true;
+                }
+            }
+
+            if (context.Action.ActionName == "GetAccounts")
+            {
+                IEdmEntitySet devices = context.Model.EntityContainer.FindEntitySet("Accounts");
+                if (devices != null)
+                {
+                    context.Action.Selectors.Clear();
+
+                    ODataPathTemplate path = new ODataPathTemplate(
+                        new EntitySetSegmentTemplate(devices)
+                    );
+                    context.Action.AddSelector("get", "api", context.Model, path, context.Options.RouteOptions);
+
+                    return true;
+                }
+            }
+
+
+            return false;
+        }
     }
 }

@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 
 namespace ODataV8Demo.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    //[Route("api/[controller]")]
+    //[ApiController]
     public class DevicesController : ODataController
     {
         /// <summary>

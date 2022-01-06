@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Extensions;
+using Microsoft.AspNetCore.OData.Formatter.Deserialization;
+using Microsoft.AspNetCore.OData.Formatter.Serialization;
 using Microsoft.AspNetCore.OData.Routing.Conventions;
 using Microsoft.AspNetCore.OData.Routing.Template;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OData;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
+using ODataETagWebApi.Extensions;
 using ODataV8Demo.Entities;
 using System;
 using System.Collections.Generic;
@@ -37,8 +40,12 @@ namespace ODataV8Demo
             services.AddControllers().AddOData(option =>
             {
                 option.Select().Filter().Count().OrderBy().Expand().SetMaxTop(100)
-                .AddRouteComponents("api/accounts", edmModelAccounts())
-               .AddRouteComponents("api/devices", edmModelDevices())
+                .AddRouteComponents("api/accounts", edmModelAccounts(),
+                builder => builder.AddSingleton<IODataSerializerProvider, ETagSerializerProvider>()
+                                  .AddSingleton<IODataDeserializerProvider, ETagDeserializerProvider>())
+               .AddRouteComponents("api/devices", edmModelDevices(),
+                builder => builder.AddSingleton<IODataSerializerProvider, ETagSerializerProvider>()
+                                  .AddSingleton<IODataDeserializerProvider, ETagDeserializerProvider>())
                .AddRouteComponents("api", fakeModel()) // is required to build the service provider for "api/"
                .Conventions.Remove(option.Conventions.First(convention => convention is MetadataRoutingConvention));
 

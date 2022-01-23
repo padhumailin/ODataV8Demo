@@ -46,8 +46,8 @@ namespace ODataV8Demo
                .AddRouteComponents("api/devices", edmModelDevices(),
                 builder => builder.AddSingleton<IODataSerializerProvider, ETagSerializerProvider>()
                                   .AddSingleton<IODataDeserializerProvider, ETagDeserializerProvider>())
-               .AddRouteComponents("api", fakeModel()) // is required to build the service provider for "api/"
-               .Conventions.Remove(option.Conventions.First(convention => convention is MetadataRoutingConvention));
+               .AddRouteComponents("api", fakeModel()); // is required to build the service provider for "api/"
+              // .Conventions.Remove(option.Conventions.First(convention => convention is MetadataRoutingConvention));
 
                 option.Conventions.Add(new MyRoutingConvention());
             }

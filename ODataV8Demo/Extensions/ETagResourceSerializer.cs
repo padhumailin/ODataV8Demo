@@ -29,7 +29,7 @@ namespace ODataETagWebApi.Extensions
             return resource;
         }
 
-        private static string EncodeETag(Guid guid)
+        private static string EncodeETag(int guid)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(guid.ToString());
             return Convert.ToBase64String(bytes);

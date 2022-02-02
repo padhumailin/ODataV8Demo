@@ -83,7 +83,11 @@ namespace ODataV8Demo
         {
             ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
 
-            builder.EntitySet<Accounts>("Accounts");
+            var account = builder.EntitySet<Accounts>("Accounts");
+
+            var linked = builder.ComplexType<LinkedAccounts>();
+
+            account.EntityType.CollectionProperty(p => p.LinkedAccounts).AutoExpand = true;
 
             return builder.GetEdmModel();
         }

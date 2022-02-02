@@ -7,7 +7,7 @@ namespace ODataV8Demo.Entities
 {
     public class Accounts
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string AccountName { get; set; }
 
         public string AccountType { get; set; }
@@ -18,5 +18,16 @@ namespace ODataV8Demo.Entities
 
         public bool IsActive { get; set; }
 
+        public ICollection<LinkedAccounts> LinkedAccounts { get; set; }
+
+    }
+
+    public class LinkedAccounts
+    {
+        public Guid Id { get; set; }
+        public int ParentId { get; set; }
+        public string LinkedAccountName { get; set; }
+
+        public Accounts Accounts { get; set; }
     }
 }

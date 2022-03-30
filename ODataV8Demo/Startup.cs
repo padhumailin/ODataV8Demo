@@ -85,9 +85,9 @@ namespace ODataV8Demo
 
             var account = builder.EntitySet<Accounts>("Accounts");
 
-            var linked = builder.ComplexType<LinkedAccounts>();
+            var linked = builder.EntityType<License>();
 
-            account.EntityType.CollectionProperty(p => p.LinkedAccounts).AutoExpand = true;
+            account.EntityType.HasMany(p => p.Licenses).AutoExpand = true;
 
             return builder.GetEdmModel();
         }

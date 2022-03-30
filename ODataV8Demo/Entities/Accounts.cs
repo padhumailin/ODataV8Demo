@@ -18,8 +18,19 @@ namespace ODataV8Demo.Entities
 
         public bool IsActive { get; set; }
 
-        public ICollection<LinkedAccounts> LinkedAccounts { get; set; }
+        public ICollection<License> Licenses { get; set; }
 
+    }
+
+
+    public class License
+    {
+        public Guid Id { get; set; }
+
+        public string Name { get; set; }
+        public DateTime StartDate { get; set; }
+
+        public DateTime EndDate { get; set; }
     }
 
     public class LinkedAccounts
